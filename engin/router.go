@@ -1,6 +1,7 @@
 package engin
 
 import (
+	"log"
 	"net/http"
 	"strings"
 )
@@ -49,12 +50,19 @@ func parsePattern(pattern string) []string {
 }
 
 func (r *router) addRouter(method string, pattern string, handler HandleFunc) {
-	parts := parsePattern(pattern)
-	key := method + "-" + pattern
 	if _, ok := r.roots[method]; !ok {
 		r.roots[method] = &treeNode{}
 	}
+	// 判断一下路由是否已经存在了
+	node, _ := r.getRouter(method, pattern)
+	if node != nil { // 说明路由已经存在
+		log.Fatalf("路由 %s 已存在", pattern)
+	}
+
+	parts := parsePattern(pattern)
 	r.roots[method].insert(pattern, parts, 0)
+
+	key := method + "-" + pattern
 	r.handlers[key] = handler
 }
 

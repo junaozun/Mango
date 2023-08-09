@@ -24,8 +24,8 @@ func (rg *RouterGroup) Use(middlewares ...HandleFunc) {
 	rg.middlewares = append(rg.middlewares, middlewares...)
 }
 
-func (rg *RouterGroup) addRoute(method string, comp string, handler HandleFunc) {
-	pattern := rg.name + comp
+func (rg *RouterGroup) addRoute(method string, part string, handler HandleFunc) {
+	pattern := rg.name + part
 	rg.engine.router.addRouter(method, pattern, handler)
 }
 

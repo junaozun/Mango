@@ -1,6 +1,7 @@
 package engin
 
 import (
+	"log"
 	"net/http"
 	"strings"
 )
@@ -37,5 +38,6 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Engine) Run(addr string) error {
+	log.Printf("服务已启动，监听地址%s", addr)
 	return http.ListenAndServe(addr, e)
 }

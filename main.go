@@ -22,9 +22,6 @@ func main() {
 	r.GET("/index", func(c *engin.Context) {
 		c.HTML(http.StatusOK, "<h1>Index Page</h1>")
 	})
-	r.GET("/index", func(c *engin.Context) {
-		c.HTML(http.StatusOK, "<h1>wowowowowowod</h1>")
-	})
 	r.GET("/index/su/suxuefeng", func(c *engin.Context) {
 		c.HTML(http.StatusOK, "<h1>Index Page</h1>")
 	})
