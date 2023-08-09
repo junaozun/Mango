@@ -17,9 +17,10 @@ func defineLog() engin.HandleFunc {
 }
 
 func main() {
-	r := engin.New()
+	r := engin.Default()
 	r.Use(defineLog())
 	r.GET("/index", func(c *engin.Context) {
+		panic("test panic")
 		c.HTML(http.StatusOK, "<h1>Index Page</h1>")
 	})
 	r.GET("/index/su/suxuefeng", func(c *engin.Context) {
@@ -41,7 +42,6 @@ func main() {
 		c.File("tpl/test.xlsx")
 	})
 	v1 := r.Group("/v1")
-	v1.Use(defineLog())
 	{
 		v1.GET("/", func(c *engin.Context) {
 			c.HTML(http.StatusOK, "<h1>Hello Gee</h1>")
@@ -64,6 +64,11 @@ func main() {
 		})
 
 	}
-
+	v3 := r.Group("/v2")
+	{
+		v3.GET("/niss/:name", func(c *engin.Context) {
+			c.String(http.StatusOK, "hello %s, you're at %s\n", c.Param("name"), c.Path)
+		})
+	}
 	r.Run(":9999")
 }

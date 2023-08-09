@@ -98,3 +98,8 @@ func (c *Context) File(filename string) {
 func (c *Context) Redirect(status int, url string) {
 	http.Redirect(c.W, c.R, url, status)
 }
+
+func (c *Context) Fail(code int, err string) {
+	c.index = len(c.handlers)
+	c.JSON(code, H{"message": err})
+}
