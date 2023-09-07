@@ -71,10 +71,10 @@ func (p *Pool) decRunning() {
 func (p *Pool) PutWorker(w *Worker) {
 	p.lock.Lock()
 	w.lastTime = time.Now()
-	w.pool.workerCache.Put(w)
 	p.workers = append(p.workers, w)
-	p.lock.Unlock()
+	w.pool.workerCache.Put(w)
 	p.cond.Signal() // 通知goroutine已经有worker放回pool中
+	p.lock.Unlock()
 	w.pool.decRunning()
 }
 
@@ -106,7 +106,7 @@ func (p *Pool) GetWorker() (w *Worker) {
 	if p.running < p.cap {
 		p.lock.Unlock()
 		w = p.workerCache.Get().(*Worker)
-		w.task = make(chan func(), 1)
+		//w.task = make(chan func(), 1)
 		return
 	}
 	// 如果大于等于cap容量，阻塞等待worker释放
@@ -177,7 +177,6 @@ func (p *Pool) clearExpireWorker() {
 				if diffTime < p.expire {
 					continue
 				}
-				w.task = nil
 				p.workers[i] = nil
 				p.workers = append(p.workers[:i], p.workers[i+1:]...)
 				log.Printf("worker%d超时%v，已被清理,running:%d, workers:%v \n", i, diffTime, p.running, p.workers)
