@@ -19,7 +19,7 @@ func newRouter() *router {
 }
 
 func (r *router) handle(c *Context) {
-	node, params := r.getRouter(c.R.Method, c.R.RequestURI)
+	node, params := r.getRouter(c.R.Method, c.R.URL.Path)
 	if node == nil {
 		c.handlers = append(c.handlers, func(c *Context) {
 			c.String(http.StatusNotFound, "404 NOT FOUND:%s\n", c.Path)

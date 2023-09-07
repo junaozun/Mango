@@ -2,8 +2,11 @@ package main
 
 import (
 	"github.com/junaozun/mango/engin"
+	"github.com/junaozun/mango/mgpool"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 )
 
 type User struct {
@@ -13,15 +16,24 @@ type User struct {
 func defineLog() engin.HandleFunc {
 	return func(c *engin.Context) {
 		log.Println("name is suxuefeng define func")
+		c.Next()
+	}
+}
+
+func defineLog2() engin.HandleFunc {
+	return func(c *engin.Context) {
+		log.Println("name is houwenwen define func")
+		c.Next()
 	}
 }
 
 func main() {
 	r := engin.Default()
 	r.Use(defineLog())
+	r.Use(defineLog2())
 	r.GET("/index", func(c *engin.Context) {
-		panic("test panic")
 		c.HTML(http.StatusOK, "<h1>Index Page</h1>")
+		log.Println("http req")
 	})
 	r.GET("/index/su/suxuefeng", func(c *engin.Context) {
 		c.HTML(http.StatusOK, "<h1>Index Page</h1>")
@@ -70,5 +82,13 @@ func main() {
 			c.String(http.StatusOK, "hello %s, you're at %s\n", c.Param("name"), c.Path)
 		})
 	}
+	p, _ := mgpool.NewPool(5)
+	r.ANY("/pool", func(c *engin.Context) {
+		c.HTML(http.StatusOK, "<h1>Index Page33333333</h1>")
+		p.Submit(func() {
+			time.Sleep(5 * time.Second)
+			log.Println("submit任务", rand.Int())
+		})
+	})
 	r.Run(":9999")
 }

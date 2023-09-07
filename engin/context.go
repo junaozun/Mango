@@ -20,22 +20,21 @@ type Context struct {
 	index      int          // 中间件的索引
 }
 
-func NewContext(w http.ResponseWriter, r *http.Request) *Context {
+func NewContext() *Context {
 	return &Context{
-		W:      w,
-		R:      r,
 		Params: make(map[string]string),
-		Method: r.Method,
-		Path:   r.URL.Path,
 		index:  -1,
 	}
 }
 
+func (c *Context) flush() {
+	c.handlers = nil
+	c.index = -1
+}
+
 func (c *Context) Next() {
 	c.index++
-	for i := c.index; i < len(c.handlers); i++ {
-		c.handlers[i](c)
-	}
+	c.handlers[c.index](c)
 }
 
 func (c *Context) Param(key string) string {
@@ -59,8 +58,8 @@ func (c *Context) JSON(code int, obj interface{}) {
 }
 
 func (c *Context) Status(code int) {
-	c.StatusCode = code
 	c.W.WriteHeader(code)
+	c.StatusCode = code
 }
 
 func (c *Context) SetHeader(key string, value string) {

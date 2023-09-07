@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 type HandleFunc func(ctx *Context)
@@ -12,11 +13,15 @@ type Engine struct {
 	router       *router
 	*RouterGroup                // 当前所处于的组
 	groups       []*RouterGroup // 所有的组
+	pool         sync.Pool
 }
 
 func New() *Engine {
 	engine := &Engine{
 		router: newRouter(),
+	}
+	engine.pool.New = func() any {
+		return NewContext()
 	}
 	engine.RouterGroup = &RouterGroup{engine: engine}
 	engine.groups = append(engine.groups, engine.RouterGroup)
@@ -38,9 +43,15 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			middlewares = append(middlewares, group.middlewares...)
 		}
 	}
-	ctx := NewContext(w, r)
+	ctx := e.pool.Get().(*Context)
+	ctx.W = w
+	ctx.R = r
+	ctx.Method = r.Method
+	ctx.Path = r.URL.Path
 	ctx.handlers = middlewares
 	e.router.handle(ctx)
+	ctx.flush()
+	e.pool.Put(ctx)
 }
 
 func (e *Engine) Run(addr string) error {
